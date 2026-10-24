@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Form</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px;
+           margin: 4rem auto; padding: 0 1rem; color:#222; }
+    h1 { font-size: 1.4rem; }
+    label { display:block; margin:1rem 0 .25rem; font-weight:600; }
+    input, textarea {
+      width: 100%; padding:.6rem; border:1px solid #ccc;
+      border-radius:6px; font:inherit; box-sizing:border-box;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    button {
+      margin-top:1rem; padding:.7rem 1.2rem; border:0; border-radius:6px;
+      background:#2563eb; color:#fff; font:inherit; font-weight:600; cursor:pointer;
+    }
+    button:disabled { background:#94a3b8; cursor: default; }
+    #status { margin-top:1rem; min-height:1.2em; }
+    .ok  { color:#15803d; }
+    .err { color:#b91c1c; }
+  </style>
+</head>
+<body>
+  <h1>Submit your info</h1>
+
+  <form id="form">
+    <label>Full name
+      <input name="fullName" required>
+    </label>
+
+    <label>Digits (numbers only)
+      <input name="digits" inputmode="numeric" pattern="\d*" required>
+    </label>
+
+    <label>Date
+      <input name="date" type="date" required>
+    </label>
+
+    <label>Password
+      <input name="password" type="password" required minlength="6">
+    </label>
+
+    <label>Address
+      <textarea name="address" required></textarea>
+    </label>
+
+    <button type="submit">Send</button>
+    <div id="status"></div>
+  </form>
+
+  <script>
+    const ENDPOINT = "PASTE_YOUR_WEB_APP_URL_HERE";
+    const form     = document.getElementById("form");
+    const status   = document.getElementById("status");
+    const button   = form.querySelector("button");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      button.disabled = true;
+      status.className = "";
+      status.textContent = "Sending...";
+
+      const data = Object.fromEntries(new FormData(form));
+
+      try {
+        const res = await fetch(ENDPOINT, {
+          method: "POST",
+          // text/plain keeps this a "simple request" — no CORS preflight
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (json.status !== "ok") throw new Error(json.message || "Unknown error");
+
+        status.className = "ok";
+        status.textContent = "✅ Saved!";
+        form.reset();
+      } catch (err) {
+        status.className = "err";
+        status.textContent = "❌ " + err.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
