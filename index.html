@@ -5,62 +5,258 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Form</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 480px;
-           margin: 4rem auto; padding: 0 1rem; color:#222; }
-    h1 { font-size: 1.4rem; }
-    label { display:block; margin:1rem 0 .25rem; font-weight:600; }
-    input, textarea {
-      width: 100%; padding:.6rem; border:1px solid #ccc;
-      border-radius:6px; font:inherit; box-sizing:border-box;
+    /* ---------- PAGE BACKGROUND (change this later) ---------- */
+    :root {
+      --page-bg: #0f172a;                 /* solid color */
+      /* --page-bg: url('bg.jpg') center/cover no-repeat;  ← swap for an image */
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
     }
-    textarea { min-height: 90px; resize: vertical; }
-    button {
-      margin-top:1rem; padding:.7rem 1.2rem; border:0; border-radius:6px;
-      background:#2563eb; color:#fff; font:inherit; font-weight:600; cursor:pointer;
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: #0f172a;
     }
-    button:disabled { background:#94a3b8; cursor: default; }
-    #status { margin-top:1rem; min-height:1.2em; }
-    .ok  { color:#15803d; }
-    .err { color:#b91c1c; }
+
+    body {
+      background: var(--page-bg);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+
+    /* ---------- OPEN BUTTON ---------- */
+    .open-btn {
+      padding: .85rem 1.4rem;
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font: 600 1rem/1 system-ui, sans-serif;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      transition: background .15s ease, transform .1s ease;
+    }
+    .open-btn:hover { background: var(--accent-hover); }
+    .open-btn:active { transform: translateY(1px); }
+
+    /* ---------- MODAL OVERLAY ---------- */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .55);
+      backdrop-filter: blur(6px);
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .2s ease, visibility .2s ease;
+      z-index: 50;
+    }
+    .modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ---------- MODAL CARD ---------- */
+    .modal {
+      width: 100%;
+      max-width: 420px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.75rem 1.75rem 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      transform: translateY(12px) scale(.98);
+      transition: transform .2s ease;
+      position: relative;
+    }
+    .modal-backdrop.open .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal h2 {
+      margin: 0 0 .25rem;
+      font-size: 1.35rem;
+      letter-spacing: -.01em;
+    }
+    .modal p.sub {
+      margin: 0 0 1.25rem;
+      color: #64748b;
+      font-size: .9rem;
+    }
+
+    /* ---------- FORM FIELDS ---------- */
+    .field { margin-bottom: 1rem; }
+
+    .field label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      margin-bottom: .35rem;
+      color: #334155;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: .7rem .85rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #f8fafc;
+      font: inherit;
+      color: inherit;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .field textarea { min-height: 80px; resize: vertical; }
+
+    .field input:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+    }
+
+    /* ---------- SUBMIT BUTTON ---------- */
+    .submit-btn {
+      width: 100%;
+      padding: .8rem 1rem;
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font: 600 1rem/1 system-ui, sans-serif;
+      cursor: pointer;
+      transition: background .15s ease;
+      margin-top: .25rem;
+    }
+    .submit-btn:hover:not(:disabled) { background: var(--accent-hover); }
+    .submit-btn:disabled { background: #94a3b8; cursor: default; }
+
+    /* ---------- STATUS ---------- */
+    #status {
+      margin-top: .9rem;
+      font-size: .9rem;
+      min-height: 1.2em;
+    }
+    #status.ok  { color: #15803d; }
+    #status.err { color: #b91c1c; }
+
+    /* ---------- CLOSE (X) ---------- */
+    .close-btn {
+      position: absolute;
+      top: .75rem;
+      right: .75rem;
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #64748b;
+      font-size: 1.25rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease;
+    }
+    .close-btn:hover { background: #f1f5f9; color: #0f172a; }
   </style>
 </head>
 <body>
-  <h1>Submit your info</h1>
 
-  <form id="form">
-    <label>Full name
-      <input name="fullName" required>
-    </label>
+  <!-- The page background is styled via --page-bg above.
+       You can replace this button with anything later. -->
+  <button class="open-btn" id="openBtn">Open form</button>
 
-    <label>Digits (numbers only)
-      <input name="digits" inputmode="numeric" pattern="\d*" required>
-    </label>
+  <!-- ---------- MODAL ---------- -->
+  <div class="modal-backdrop" id="backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="close-btn" id="closeBtn" aria-label="Close">✕</button>
 
-    <label>Date
-      <input name="date" type="date" required>
-    </label>
+      <h2 id="modalTitle">Submit your info</h2>
+      <p class="sub">Fill in the fields below and we’ll save it.</p>
 
-    <label>Password
-      <input name="password" type="password" required minlength="6">
-    </label>
+      <form id="form">
+        <div class="field">
+          <label for="fullName">Full name</label>
+          <input id="fullName" name="fullName" required>
+        </div>
 
-    <label>Address
-      <textarea name="address" required></textarea>
-    </label>
+        <div class="field">
+          <label for="digits">Digits</label>
+          <input id="digits" name="digits" inputmode="numeric" pattern="\d*" required>
+        </div>
 
-    <button type="submit">Send</button>
-    <div id="status"></div>
-  </form>
+        <div class="field">
+          <label for="date">Date</label>
+          <input id="date" name="date" type="date" required>
+        </div>
+
+        <div class="field">
+          <label for="password">Code (3 digits)</label>
+          <!-- Plain text, no minlength, no masking — it's a code -->
+          <input id="password" name="password" type="text" inputmode="numeric" placeholder="e.g. 123">
+        </div>
+
+        <div class="field">
+          <label for="address">Address</label>
+          <textarea id="address" name="address" required></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">Send</button>
+        <div id="status"></div>
+      </form>
+    </div>
+  </div>
 
   <script>
+    // ⚠️ Paste your real /exec URL here
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbyavwLitN1DTEYrvTIq_BcNGC0YxKXx0cI5TCFoupKnbN5AVyw31LBTfw0tKbbjbKAZ/exec";
+
+    const backdrop = document.getElementById("backdrop");
+    const openBtn  = document.getElementById("openBtn");
+    const closeBtn = document.getElementById("closeBtn");
     const form     = document.getElementById("form");
     const status   = document.getElementById("status");
-    const button   = form.querySelector("button");
+    const submit   = form.querySelector("button[type=submit]");
 
+    // ---- open / close ----
+    function openModal() {
+      backdrop.classList.add("open");
+      backdrop.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      // focus first field
+      setTimeout(() => document.getElementById("fullName").focus(), 50);
+    }
+    function closeModal() {
+      backdrop.classList.remove("open");
+      backdrop.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    openBtn.addEventListener("click", openModal);
+    closeBtn.addEventListener("click", closeModal);
+
+    // click outside the card closes it
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) closeModal();
+    });
+
+    // Esc closes it
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && backdrop.classList.contains("open")) closeModal();
+    });
+
+    // ---- submit ----
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      button.disabled = true;
+      submit.disabled = true;
       status.className = "";
       status.textContent = "Sending...";
 
@@ -69,7 +265,6 @@
       try {
         const res = await fetch(ENDPOINT, {
           method: "POST",
-          // text/plain keeps this a "simple request" — no CORS preflight
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(data)
         });
@@ -79,11 +274,13 @@
         status.className = "ok";
         status.textContent = "✅ Saved!";
         form.reset();
+        // close after a short pause so they see the success message
+        setTimeout(closeModal, 900);
       } catch (err) {
         status.className = "err";
         status.textContent = "❌ " + err.message;
       } finally {
-        button.disabled = false;
+        submit.disabled = false;
       }
     });
   </script>
