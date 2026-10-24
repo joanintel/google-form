@@ -5,12 +5,20 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Form</title>
   <style>
-    /* ---------- PAGE BACKGROUND (change this later) ---------- */
+    /* ============================================================
+       PAGE BACKGROUND — change these later
+       ============================================================ */
     :root {
-      --page-bg: #0f172a;                 /* solid color */
-      /* --page-bg: url('bg.jpg') center/cover no-repeat;  ← swap for an image */
+      --page-bg: #0f172a;               /* solid color */
+      /* --page-bg: url('bg.jpg') center/cover no-repeat; */
+      /* --page-bg: linear-gradient(135deg, #1e3a8a, #0f172a); */
+
       --accent: #2563eb;
       --accent-hover: #1d4ed8;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #cbd5e1;
+      --field-bg: #f8fafc;
     }
 
     * { box-sizing: border-box; }
@@ -19,7 +27,7 @@
       margin: 0;
       min-height: 100%;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      color: #0f172a;
+      color: var(--text);
     }
 
     body {
@@ -27,9 +35,12 @@
       min-height: 100vh;
       display: grid;
       place-items: center;
+      padding: 1rem;
     }
 
-    /* ---------- OPEN BUTTON ---------- */
+    /* ============================================================
+       OPEN BUTTON
+       ============================================================ */
     .open-btn {
       padding: .85rem 1.4rem;
       border: 0;
@@ -43,8 +54,36 @@
     }
     .open-btn:hover { background: var(--accent-hover); }
     .open-btn:active { transform: translateY(1px); }
+    .open-btn.hidden { display: none; }
 
-    /* ---------- MODAL OVERLAY ---------- */
+    /* ============================================================
+       THANK-YOU BANNER (shown after submit)
+       ============================================================ */
+    .thanks {
+      display: none;
+      text-align: center;
+      color: #fff;
+      max-width: 420px;
+      padding: 2rem 1.5rem;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 16px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      animation: fadeUp .35s ease both;
+    }
+    .thanks.show { display: block; }
+    .thanks h2 { margin: 0 0 .4rem; font-size: 1.4rem; }
+    .thanks p  { margin: 0; color: #cbd5e1; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================================
+       MODAL
+       ============================================================ */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -63,10 +102,9 @@
       visibility: visible;
     }
 
-    /* ---------- MODAL CARD ---------- */
     .modal {
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       max-height: 90vh;
       overflow-y: auto;
       background: #fff;
@@ -88,11 +126,13 @@
     }
     .modal p.sub {
       margin: 0 0 1.25rem;
-      color: #64748b;
+      color: var(--muted);
       font-size: .9rem;
     }
 
-    /* ---------- FORM FIELDS ---------- */
+    /* ============================================================
+       FORM FIELDS
+       ============================================================ */
     .field { margin-bottom: 1rem; }
 
     .field label {
@@ -107,14 +147,13 @@
     .field textarea {
       width: 100%;
       padding: .7rem .85rem;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--border);
       border-radius: 10px;
-      background: #f8fafc;
+      background: var(--field-bg);
       font: inherit;
       color: inherit;
       transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
     }
-    .field textarea { min-height: 80px; resize: vertical; }
 
     .field input:focus,
     .field textarea:focus {
@@ -124,7 +163,23 @@
       box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
     }
 
-    /* ---------- SUBMIT BUTTON ---------- */
+    /* Divider before address section */
+    .divider {
+      height: 1px;
+      background: #e2e8f0;
+      margin: 1.25rem 0 1rem;
+    }
+
+    /* Two-column row (state + zip) */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+    }
+
+    /* ============================================================
+       SUBMIT BUTTON
+       ============================================================ */
     .submit-btn {
       width: 100%;
       padding: .8rem 1rem;
@@ -140,7 +195,9 @@
     .submit-btn:hover:not(:disabled) { background: var(--accent-hover); }
     .submit-btn:disabled { background: #94a3b8; cursor: default; }
 
-    /* ---------- STATUS ---------- */
+    /* ============================================================
+       STATUS
+       ============================================================ */
     #status {
       margin-top: .9rem;
       font-size: .9rem;
@@ -149,7 +206,9 @@
     #status.ok  { color: #15803d; }
     #status.err { color: #b91c1c; }
 
-    /* ---------- CLOSE (X) ---------- */
+    /* ============================================================
+       CLOSE (X)
+       ============================================================ */
     .close-btn {
       position: absolute;
       top: .75rem;
@@ -159,22 +218,32 @@
       border: 0;
       border-radius: 8px;
       background: transparent;
-      color: #64748b;
+      color: var(--muted);
       font-size: 1.25rem;
       line-height: 1;
       cursor: pointer;
       transition: background .15s ease, color .15s ease;
     }
-    .close-btn:hover { background: #f1f5f9; color: #0f172a; }
+    .close-btn:hover { background: #f1f5f9; color: var(--text); }
+
+    /* Stack state/zip on very small screens */
+    @media (max-width: 360px) {
+      .grid-2 { grid-template-columns: 1fr; gap: 0; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- The page background is styled via --page-bg above.
-       You can replace this button with anything later. -->
+  <!-- Thank-you card (hidden until a successful submit) -->
+  <div class="thanks" id="thanks" aria-live="polite">
+    <h2>Thank you! 🎉</h2>
+    <p>Your info was saved. We’ll be in touch.</p>
+  </div>
+
+  <!-- Open button (hidden after success) -->
   <button class="open-btn" id="openBtn">Open form</button>
 
-  <!-- ---------- MODAL ---------- -->
+  <!-- ============================ MODAL ============================ -->
   <div class="modal-backdrop" id="backdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <button class="close-btn" id="closeBtn" aria-label="Close">✕</button>
@@ -183,6 +252,7 @@
       <p class="sub">Fill in the fields below and we’ll save it.</p>
 
       <form id="form">
+        <!-- Basic info -->
         <div class="field">
           <label for="fullName">Full name</label>
           <input id="fullName" name="fullName" required>
@@ -200,13 +270,31 @@
 
         <div class="field">
           <label for="password">Code (3 digits)</label>
-          <!-- Plain text, no minlength, no masking — it's a code -->
           <input id="password" name="password" type="text" inputmode="numeric" placeholder="e.g. 123">
         </div>
 
+        <!-- Address section -->
+        <div class="divider"></div>
+
         <div class="field">
-          <label for="address">Address</label>
-          <textarea id="address" name="address" required></textarea>
+          <label for="street">Street</label>
+          <input id="street" name="street" required>
+        </div>
+
+        <div class="field">
+          <label for="city">City</label>
+          <input id="city" name="city" required>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="state">State</label>
+            <input id="state" name="state" required>
+          </div>
+          <div class="field">
+            <label for="zip">Zip code</label>
+            <input id="zip" name="zip" inputmode="numeric" pattern="\d*" required>
+          </div>
         </div>
 
         <button type="submit" class="submit-btn">Send</button>
@@ -216,8 +304,10 @@
   </div>
 
   <script>
-    // ⚠️ Paste your real /exec URL here
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbyavwLitN1DTEYrvTIq_BcNGC0YxKXx0cI5TCFoupKnbN5AVyw31LBTfw0tKbbjbKAZ/exec";
+    // ============================================================
+    // CONFIG — paste your real Apps Script /exec URL here
+    // ============================================================
+    const ENDPOINT = "https://script.google.com/macros/s/YOUR_REAL_ID/exec";
 
     const backdrop = document.getElementById("backdrop");
     const openBtn  = document.getElementById("openBtn");
@@ -225,13 +315,15 @@
     const form     = document.getElementById("form");
     const status   = document.getElementById("status");
     const submit   = form.querySelector("button[type=submit]");
+    const thanks   = document.getElementById("thanks");
 
-    // ---- open / close ----
+    // ============================================================
+    // OPEN / CLOSE
+    // ============================================================
     function openModal() {
       backdrop.classList.add("open");
       backdrop.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
-      // focus first field
       setTimeout(() => document.getElementById("fullName").focus(), 50);
     }
     function closeModal() {
@@ -243,24 +335,41 @@
     openBtn.addEventListener("click", openModal);
     closeBtn.addEventListener("click", closeModal);
 
-    // click outside the card closes it
     backdrop.addEventListener("click", (e) => {
       if (e.target === backdrop) closeModal();
     });
 
-    // Esc closes it
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && backdrop.classList.contains("open")) closeModal();
     });
 
-    // ---- submit ----
+    // ============================================================
+    // SUBMIT
+    // ============================================================
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       submit.disabled = true;
       status.className = "";
       status.textContent = "Sending...";
 
-      const data = Object.fromEntries(new FormData(form));
+      const raw = Object.fromEntries(new FormData(form));
+
+      // Combine street / city / state / zip into ONE address string
+      const address = [
+        raw.street?.trim(),
+        raw.city?.trim(),
+        raw.state?.trim(),
+        raw.zip?.trim()
+      ].filter(Boolean).join(", ");
+
+      // Payload matches the sheet columns
+      const data = {
+        fullName: raw.fullName || "",
+        digits:   raw.digits   || "",
+        date:     raw.date     || "",
+        password: raw.password || "",
+        address:  address
+      };
 
       try {
         const res = await fetch(ENDPOINT, {
@@ -274,8 +383,13 @@
         status.className = "ok";
         status.textContent = "✅ Saved!";
         form.reset();
-        // close after a short pause so they see the success message
-        setTimeout(closeModal, 900);
+
+        // Close modal, then show the thank-you card
+        setTimeout(() => {
+          closeModal();
+          thanks.classList.add("show");
+          openBtn.classList.add("hidden");
+        }, 900);
       } catch (err) {
         status.className = "err";
         status.textContent = "❌ " + err.message;
